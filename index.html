@@ -222,10 +222,8 @@ dialog.dlg::backdrop{background:rgba(20,26,36,.55)}
     <div>
       <div class="eyebrow">Le Carreau de Marsannay · Saison <span id="saison">2027</span></div>
       <h1>Inscriptions <span class="yr">aux championnats</span></h1>
-      <p class="sub">Championnats de Côte-d'Or (CCO). Choisissez vos championnats, composez vos équipes : le club centralise les inscriptions et les transmet au comité.</p>
-      <div class="stats" id="stats"></div>
+      <p class="sub">Choisissez vos championnats et composez vos équipes</p>
     </div>
-    <aside class="next" id="next" aria-live="polite"></aside>
   </header>
 
   <div class="demo" id="demo" hidden><b>Mode démonstration.</b> La page n'est pas encore reliée à Google Sheets : les inscriptions ne sont pas enregistrées. Renseignez <code>SCRIPT_URL</code> dans la configuration.</div>
@@ -253,11 +251,12 @@ dialog.dlg::backdrop{background:rgba(20,26,36,.55)}
       <div class="filters">
         <div class="seg" id="seg-f" role="group" aria-label="Filtrer par format">
           <button type="button" data-f="all" aria-pressed="true">Tous</button>
-          <button type="button" data-f="i" aria-pressed="false">Individuel</button>
-          <button type="button" data-f="d" aria-pressed="false">Doublette</button>
-          <button type="button" data-f="t" aria-pressed="false">Triplette</button>
+          <button type="button" data-f="masculins" aria-pressed="false">Masculins</button>
+          <button type="button" data-f="feminins" aria-pressed="false">Féminins</button>
+          <button type="button" data-f="mixtes" aria-pressed="false">Mixtes</button>
           <button type="button" data-f="jeunes" aria-pressed="false">Jeunes</button>
-          <button type="button" data-f="jp" aria-pressed="false">Jeu provençal</button>
+          <button type="button" data-f="jp" aria-pressed="false">Jeu Provençal</button>
+          <button type="button" data-f="veterans" aria-pressed="false">Vétérans</button>
         </div>
         <span class="cnt" id="cnt"></span>
       </div>
@@ -267,7 +266,7 @@ dialog.dlg::backdrop{background:rgba(20,26,36,.55)}
     <!-- 3. Équipes -->
     <section class="sec" aria-labelledby="h3s">
       <div class="sec-h"><span class="n">3</span><h2 id="h3s">Composez vos équipes</h2>
-        <span class="hint">Nom, prénom et numéro de licence de chaque joueur, pour chaque championnat choisi.</span></div>
+        <span class="hint">Nom, prénom et numéro de licence de chaque joueur, pour chaque championnat choisi. Remplissage du numéro de licence automatique.</span></div>
       <div class="teams" id="teams"></div>
     </section>
 
@@ -365,6 +364,7 @@ const team = id => {
 function renderHead(){
   $('#saison').textContent = CONFIG.SAISON;
   const open = CHAMPS.filter(c => c.open);
+  if (!$('#stats') || !$('#next')) return; // statistiques et prochaine clôture retirées du bandeau
   $('#stats').innerHTML = `<span><b>${CHAMPS.length}</b>championnats</span><span><b>${open.length}</b>ouverts</span><span><b>${state.sel.size}</b>sélectionné${state.sel.size>1?'s':''}</span>`;
   const nx = [...open].sort((a,b) => a.close - b.close)[0];
   const el = $('#next');
@@ -388,8 +388,11 @@ function matchFilter(c){
   if (f === 'all') return true;
   if (f === 'jeunes') return !!c.jeunes;
   if (f === 'jp') return !!c.jp;
-  if (f === 'i') return c.f === 'i' || c.f === 'p';
-  return c.f === f;
+  if (f === 'masculins') return /Masculin/.test(c.nom);
+  if (f === 'feminins') return /Féminin/.test(c.nom);
+  if (f === 'mixtes') return /Mixte/.test(c.nom);
+  if (f === 'veterans') return /Vétéran/.test(c.nom);
+  return true;
 }
 function renderChamps(){
   const list = CHAMPS.filter(matchFilter).sort((a,b) => a.start - b.start);
