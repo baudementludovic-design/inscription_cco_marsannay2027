@@ -309,7 +309,8 @@ const CONFIG = {
    f : i = individuel, d = doublette, t = triplette, p = tir de précision (individuel)
    n : nombre de joueurs · d/e : début / fin · cloture : date limite d'inscription au club (facultatif, AAAA-MM-JJ) */
 const CHAMPS = [
-  {id:'cco-tir',      nom:'Tir de précision',               f:'p', n:1, d:'2027-02-20', tags:['Senior']},
+  {id:'cco-tir',      nom:'Tir de précision Masculin',      titre:'Tir de précision', f:'p', n:1, d:'2027-02-20', tags:['Masculin']},
+  {id:'cco-tirf',     nom:'Tir de précision Féminin',       titre:'Tir de précision', f:'p', n:1, d:'2027-02-20', tags:['Féminin']},
   {id:'cco-ij',       nom:'Individuel Jeunes',              f:'i', n:1, d:'2027-03-13', jeunes:true},
   {id:'cco-dj',       nom:'Doublette Jeunes',               f:'d', n:2, d:'2027-03-14', jeunes:true},
   {id:'cco-tjp',      nom:'Triplette Jeu Provençal',        f:'t', n:3, d:'2027-03-27', e:'2027-03-28', jp:true},
@@ -409,7 +410,7 @@ function renderChamps(){
       <input type="checkbox" value="${c.id}" ${state.sel.has(c.id)?'checked':''} ${c.open?'':'disabled'}>
       ${dateBlock(c)}
       <div><div class="meta"><span class="tag fmt">${FMT[c.f]}</span>${c.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
-        <div class="ttl">${esc(c.nom)}</div>
+        <div class="ttl">${esc(c.titre || c.nom)}</div>
         <div class="sm">${closeTxt}${cnt!=null?`<span>${cnt} ${c.n>1?'équipe':'joueur'}${cnt>1?'s':''} inscrit${c.n>1?'e':''}${cnt>1?'s':''}</span>`:''}${cnt?`<button type="button" class="lst-btn" data-liste="${c.id}">Liste des équipes inscrites</button>`:''}</div></div>
       <span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
     </label>`;
@@ -643,7 +644,7 @@ async function loadClotures(){
     const map = {};
     j.clotures.forEach(x => { if (x && x.date) map[normTxt(x.nom)] = x.date; });
     CHAMPS.forEach(c => {
-      const iso = map[normTxt(c.id)] || map[normTxt(c.nom)] || map[normTxt('CCO ' + c.nom)];
+      const iso = map[normTxt(c.id)] || map[normTxt(c.nom)] || map[normTxt('CCO ' + c.nom)] || (c.titre && (map[normTxt(c.titre)] || map[normTxt('CCO ' + c.titre)]));
       if (!iso) return;
       c.close = toD(iso); c.closeISO = iso;
       c.open = daysTo(c.close) >= 0;
