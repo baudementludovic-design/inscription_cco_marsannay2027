@@ -138,7 +138,10 @@ dialog.dlg::backdrop{background:rgba(20,26,36,.55)}
 .cc:has(input:checked){border-color:var(--brand);border-left-color:var(--fc);background:color-mix(in srgb,var(--brand) 6%,var(--surface));box-shadow:0 0 0 1px var(--brand) inset}
 .cc:has(input:checked) .tick{background:var(--brand);border-color:var(--brand)}
 .cc:has(input:checked) .tick svg{opacity:1}
-.cc.closed{cursor:not-allowed;opacity:.55;background:var(--surface-2)}
+.cc.closed{cursor:not-allowed;background:var(--surface-2)}
+.cc.closed .dt,.cc.closed .meta,.cc.closed .ttl,.cc.closed .tick{opacity:.5}
+.closed-tag{display:inline-flex;align-items:center;gap:5px;background:var(--brand);color:var(--on-brand);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:3px 10px 3px 8px;border-radius:999px;margin:2px 0}
+.closed-tag svg{width:12px;height:12px;stroke:currentColor;stroke-width:2.6;fill:none;stroke-linecap:round}
 .cc.closed .tick{border-style:dashed}
 .empty{grid-column:1/-1;color:var(--muted);padding:18px;text-align:center;border:1px dashed var(--line);border-radius:var(--r)}
 
@@ -404,14 +407,14 @@ function renderChamps(){
       html += `<h3 class="mh">${MOIS[m]} <small>${k} championnat${k>1?'s':''}</small></h3>`; lastM = m; }
     const j = daysTo(c.close);
     const cnt = state.counts[c.id];
-    const closeTxt = !c.open ? '<span>Inscriptions closes</span>'
+    const closeTxt = !c.open ? '<span class="closed-tag"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Inscriptions closes</span>'
       : `<span class="${j<=7?'soon':''}">Clôture ${j===0?"aujourd'hui":'le '+esc(fmtShort(c.close))}</span>`;
     html += `<label class="cc${c.open?'':' closed'}" data-f="${c.f}">
       <input type="checkbox" value="${c.id}" ${state.sel.has(c.id)?'checked':''} ${c.open?'':'disabled'}>
       ${dateBlock(c)}
       <div><div class="meta"><span class="tag fmt">${FMT[c.f]}</span>${c.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
         <div class="ttl">${esc(c.titre || c.nom)}</div>
-        <div class="sm">${closeTxt}${cnt!=null?`<span>${cnt} ${c.n>1?'équipe':'joueur'}${cnt>1?'s':''} inscrit${c.n>1?'e':''}${cnt>1?'s':''}</span>`:''}${cnt?`<button type="button" class="lst-btn" data-liste="${c.id}">Liste des équipes inscrites</button>`:''}</div></div>
+        <div class="sm">${closeTxt}${cnt!=null?`<span>${cnt} ${c.n>1?'équipe':(c.tags.includes('Féminin')?'joueuse':'joueur')}${cnt>1?'s':''} inscrit${(c.n>1||c.tags.includes('Féminin'))?'e':''}${cnt>1?'s':''}</span>`:''}${cnt?`<button type="button" class="lst-btn" data-liste="${c.id}">Liste des équipes inscrites</button>`:''}</div></div>
       <span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
     </label>`;
   });
